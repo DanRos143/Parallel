@@ -28,17 +28,15 @@ public class ParallelImageProcessor {
 
         int partSize = height/CORES;
 
-        int lastPartSize = height - partSize * (CORES - 1);
-
         return IntStream.range(1, CORES + 1)
                 .boxed()
                 .map(value -> {
                     if (value < CORES) {
                         return executor.submit(() -> new MedianFilterImpl()
-                                .filterImage(image, partSize * (value - 1), partSize * (value)));
+                                .filterImage(image, partSize * (value - 1), partSize * (value) + 1));
                     } else {
                         return executor.submit(() -> new MedianFilterImpl()
-                                .filterImage(image, partSize * (value - 1), partSize * (value - 1) + lastPartSize));
+                                .filterImage(image, partSize * (value - 1), image.getHeight()));
                     }
                 })
                 .collect(Collectors.toList());
